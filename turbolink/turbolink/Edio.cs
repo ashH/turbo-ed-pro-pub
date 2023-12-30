@@ -141,14 +141,24 @@ namespace turbolink
         {
             string[] ports = SerialPort.GetPortNames();
 
+            // Testing: if we're running on macOS, filter the huge number of devices/ports we'll get from the above query to what we're actually interested in
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                ports = ports.Where(s => s.Contains("tty.usb")).ToArray();
+            }
+
             for (int i = 0; i < ports.Length; i++)
             {
                 try
                 {
                     openConnrction(ports[i]);
+                    Console.WriteLine("Everdrive found: " + ports[i]);
                     return;
                 }
-                catch (Exception) { }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Exception: " + ex.ToString());
+                }
             }
 
             throw new Exception("EverDrive not found");
@@ -169,7 +179,10 @@ namespace turbolink
                 port.WriteTimeout = 2000;
                 return;
             }
-            catch (Exception) { }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception: " + ex.ToString());
+            }
 
 
             try
